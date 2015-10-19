@@ -30,52 +30,56 @@ data:
 main:
 
 cursor: ;Set cursor position to (0,0)
-    mov dx, 0x3D4 ;Prepare to send higher bits
+    mov dx, 0x3D4
     mov al, 14
     out dx, al
-    mov dx, 0x3D5 ;Send 0
+    
+    inc dx ;0x3D5
     mov al, 0
     out dx, al
-    mov dx, 0x3D4 ;Prepare to send lower bits
+    
+    dec dx ;0x3D4
     mov al, 15
     out dx, al
-    mov dx, 0x3D5 ;Send 0
+    
+    inc dx ;0x3D5
     mov al, 0
     out dx, al
 
-clear:
-    mov edx, GPU ;Store GPU memory position
+clear: ;Clear whole screen
+    mov edx, GPU
     .write:
-    	mov [edx], BYTE " " ;Write space at current memory position
-    	mov [edx+1], BYTE TERM_COLOR ;Write color code
-        add edx, 2 ;Jump to next position
-        cmp edx, GPU_END ;Compare next position with end of GPU memory
-        jnz clear.write ;Repeat if not ended
+    	mov [edx], BYTE " "
+    	mov [edx+1], BYTE 0
+        add edx, 2
+        cmp edx, GPU_END
+        jnz clear.write
 
-logo:
-    mov edx, GPU + LOGO_POS ;Store starting position
-    mov ebx, 1 ;Store line counter
-    mov si, data.str ;Put string address for lodsb
-    .print_char:
-        lodsb ;Load char from [si]
-        cmp al, 0xA ;Check for new line
-        jz logo.new_line ;Make cariage return
-        cmp al, 0x0 ;Check for string end
-        jz end ;Finish
-        mov [edx], BYTE al ;Write char
-        add edx, 2 ;Jump to next position of memory
-        jmp logo.print_char ;Repeat
+logo: ;Draw logo
+    mov edx, GPU + LOGO_POS
+    mov ebx, 1
+    mov si, data.str
+    .write:
+        lodsb
+        cmp al, 0xA
+        jz logo.new_line
+        cmp al, 0x0
+        jz end
+        mov [edx], BYTE al
+        mov [edx+1], BYTE TERM_COLOR
+        add edx, 2
+        jmp logo.write
     .new_line:
-    	mov edx, TERM_W * 2 ;Store terminal width
-    	imul edx, ebx ;Calculate position of line from counter
-    	add edx, GPU + LOGO_POS ;Add starting position
-    	inc ebx ;Increment counter
-        jmp logo.print_char ;Repeat
+    	mov edx, TERM_W * 2
+    	imul edx, ebx
+    	add edx, GPU + LOGO_POS
+    	inc ebx
+        jmp logo.write
 
-end:
-    jmp end ;Loop forever
+end: ;Loop forever
+    jmp end
     
-    .fill:
+    .fill: ;MBR partition table space
         times 510 - ( $ - $$ ) db 0x90
-    .bootflag:
+    .bootflag: ;Mark as bootable
         dw 0xAA55
