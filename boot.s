@@ -8,7 +8,7 @@
 
 %define GPU 0xB8000
 %define GPU_END GPU + (TERM_W) * (TERM_H) * 2
-%define LOGO_POS + (LOGO_X + (TERM_W * LOGO_Y)) * 2
+%define LOGO_POS (LOGO_X + (TERM_W * LOGO_Y)) * 2
 
 [BITS 16]
 org 0x7C00
