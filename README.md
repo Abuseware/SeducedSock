@@ -13,7 +13,7 @@ partition)
 
 ### How to build
 Simply type "make" inside project directory. You must have GNU or BSD Make,
-NASM, and GNU or BSD dd.
+and NASM.
 
 Final image works either as a floppy and a hard drive.
 
