@@ -8,6 +8,17 @@
 jmp WORD 0:start								; Unify the segment:offset between BIOSes
 
 start:
+	;; Disable interupts
+	cli
+
+	;; Enable A20
+	mov ax, 0x2401 								; BIOS version
+	int 0x15
+
+	in al, 0x92										; Fast A20
+	or al, 2
+	out 0x92, al
+
 	;; Prepare segments
 	mov ax, 0x2000
 	mov ds, ax

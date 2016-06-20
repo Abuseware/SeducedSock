@@ -8,8 +8,7 @@ build:
 	$(AS) $(ASFLAGS) stage2.s
 
 floppy:
-	cat stage1 stage2 > boot.img
-	dd bs=512 count=2876 < /dev/zero >> boot.img
+	$(AS) $(ASFLAGS) -o boot.img boot.s
 
 test:
 	bochs -q
