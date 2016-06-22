@@ -24,7 +24,7 @@ start:
 	mov ds, ax
 	mov es, ax
 
-	mov ax, 0x1000
+	mov ax, 0x1ff0
 	mov ss, ax
 	xor sp, sp
 
@@ -53,12 +53,22 @@ start:
 
 clear:
 	;; Clear whole screen
-	xor eax, eax
-.write:
-	mov [gs:eax], WORD 0x20
-	add eax, 2
-	cmp eax, FB_SIZ
-	jnz .write
+	;; Prepare ES
+	push es
+	push di
+	mov ax, FB / 0x10
+	mov es, ax
+	xor di,di
+
+	;; Clear
+	mov cx, FB_SIZ
+	mov ax, 0x20
+	rep stosw
+
+	;; Restore ES
+	DEBUG
+	pop di
+	pop es
 
 loader:
 	;; Read stage2 to ES:BX

@@ -12,5 +12,5 @@ build: stage1 stage2
 
 floppy: boot
 
-test:
-	bochs -q
+clean:
+	rm -f stage1 stage2 boot
