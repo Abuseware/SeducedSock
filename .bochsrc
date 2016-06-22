@@ -411,7 +411,7 @@ clock: sync=realtime, rtc_sync=1, time0=utc
 #floppya: 1_44=a:, status=inserted
 #floppya: 1_44=a.img, status=inserted, write_protected=1
 #floppya: 1_44=/dev/rfd0a, status=inserted
-floppya: image=boot.img, status=inserted, write_protected=1
+floppya: image=boot, status=inserted, write_protected=1
 
 #=======================================================================
 # FLOPPYB:
