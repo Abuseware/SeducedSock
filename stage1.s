@@ -54,11 +54,11 @@ start:
 clear:
 	;; Clear whole screen
 	xor eax, eax
-	.write:
-		mov [gs:eax], WORD 0x20
-		add eax, 2
-		cmp eax, FB_SIZ
-		jnz .write
+.write:
+	mov [gs:eax], WORD 0x20
+	add eax, 2
+	cmp eax, FB_SIZ
+	jnz .write
 
 loader:
 	;; Read stage2 to ES:BX

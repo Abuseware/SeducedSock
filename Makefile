@@ -1,14 +1,16 @@
 AS = nasm
-ASFLAGS = -Ox -f bin
+ASFLAGS = -f bin
+
+.PHONY: all
+
+.s:
+	$(AS) $(ASFLAGS) $<
 
 all: build floppy
 
-build:
-	$(AS) $(ASFLAGS) stage1.s
-	$(AS) $(ASFLAGS) stage2.s
+build: stage1 stage2
 
-floppy:
-	$(AS) $(ASFLAGS) -o boot.img boot.s
+floppy: boot
 
 test:
 	bochs -q
