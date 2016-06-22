@@ -11,33 +11,39 @@
 
 [BITS 16]
 [CPU 586]
-;; [org 0x0000]
 
 start:
-	;; Prepare segments
-	mov ax, 0x2000
+	;; Prepare for protected mode
+	cli
+	lgdt [gdt.gdtr]
+	mov eax, cr0
+	or al, 1											; set PE
+	mov cr0, eax
+
+	jmp dword 0x8:(0x20000 + pmode)
+
+[BITS 32]
+pmode:
+	mov ax, 0x10
+
 	mov ds, ax
 	mov es, ax
 
-	mov ax, 0x1ff0
 	mov ss, ax
-	xor sp, sp
 
-	mov ax, (FB / 0x10)
 	mov fs, ax
 	mov gs, ax
 
 logo:
 	;; Draw logo
 	;; Prepare registers for loading string
-	mov edx, LOGO_POS
+	mov edx, FB + LOGO_POS
 	mov ebx, 1
-	mov si, data.str
+	mov esi, 0x20000 + data.str
 
 	.write:
 	;; Read single char from string
 	lodsb
-
 	;; Jump on special chars
 	cmp al, 0xA
 	jz .new_line								;	Make new line on 0xA (\n)
@@ -46,36 +52,19 @@ logo:
 
 	;; Write char to framebuffer
 	mov ah, LOGO_COLOR
-	mov [gs:edx], WORD ax
+	mov [edx], WORD ax
 	add edx, 2
 	jmp .write
 
 	.new_line:
 	mov edx, FB_W * 2
 	imul edx, ebx
-	add edx, LOGO_POS
+	add edx, FB + LOGO_POS
 	inc ebx
 	jmp .write
 
 	.end:
 
-pmode:
-	;; Prepare for protected mode
-	cli
-	lgdt [gdt.gdtr]
-	mov eax, cr0
-	or al, 1											; set PE
-	mov cr0, eax
-
-	jmp dword 0x8:(0x20000 + pmode32)
-
-pmode32:
-	[bits 32]
-	mov ax, 0x10
-	mov ds, ax
-	mov es, ax
-	mov ss, ax
-	
 	jmp $
 
 gdt:
