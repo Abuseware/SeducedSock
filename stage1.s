@@ -66,7 +66,6 @@ clear:
 	rep stosw
 
 	;; Restore ES
-	DEBUG
 	pop di
 	pop es
 
