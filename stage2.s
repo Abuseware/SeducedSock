@@ -11,7 +11,7 @@
 
 [BITS 16]
 [CPU 586]
-[org 0x0000]
+;; [org 0x0000]
 
 start:
 	;; Prepare segments
@@ -34,42 +34,42 @@ logo:
 	mov ebx, 1
 	mov si, data.str
 
-	.write:
-		;; Read single char from string
-		lodsb
+.write:
+	;; Read single char from string
+	lodsb
 
-		;; Jump on special chars
-		cmp al, 0xA
-		jz .new_line								;	Make new line on 0xA (\n)
-		cmp al, 0x0
-		jz .end											;	Exit loop on null byte
+	;; Jump on special chars
+	cmp al, 0xA
+	jz .new_line								;	Make new line on 0xA (\n)
+	cmp al, 0x0
+	jz .end											;	Exit loop on null byte
 
-		;; Write char to framebuffer
-		mov ah, LOGO_COLOR
-		mov [gs:edx], WORD ax
-		add edx, 2
-		jmp .write
-	.new_line:
-		mov edx, FB_W * 2
-		imul edx, ebx
-		add edx, LOGO_POS
-		inc ebx
-		jmp .write
-	.end:
+	;; Write char to framebuffer
+	mov ah, LOGO_COLOR
+	mov [gs:edx], WORD ax
+	add edx, 2
+	jmp .write
+.new_line:
+	mov edx, FB_W * 2
+	imul edx, ebx
+	add edx, LOGO_POS
+	inc ebx
+	jmp .write
+.end:
 
 end:
 	;; Loop forever
 	jmp $
 
 data:
-	.str:
-		db '    _/_/_/        _/_/',0xA
-		db '   _/    _/    _/        _/_/_/',0xA
-		db '  _/_/_/    _/_/_/_/  _/    _/',0xA
-		db ' _/    _/    _/      _/    _/',0xA
-		db '_/_/_/      _/        _/_/_/',0xA
-		db '                         _/',0xA
-		db '                        _/',0x0
+.str:
+	db '    _/_/_/        _/_/',0xA
+	db '   _/    _/    _/        _/_/_/',0xA
+	db '  _/_/_/    _/_/_/_/  _/    _/',0xA
+	db ' _/    _/    _/      _/    _/',0xA
+	db '_/_/_/      _/        _/_/_/',0xA
+	db '                         _/',0xA
+	db '                        _/',0x0
 
 fill:	
 	;; Fill to 1.5kB
