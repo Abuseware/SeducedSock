@@ -19,7 +19,7 @@ start:
 	mov ds, ax
 	mov es, ax
 
-	mov ax, 0x1000
+	mov ax, 0x1ff0
 	mov ss, ax
 	xor sp, sp
 
@@ -34,7 +34,7 @@ logo:
 	mov ebx, 1
 	mov si, data.str
 
-.write:
+	.write:
 	;; Read single char from string
 	lodsb
 
@@ -49,17 +49,56 @@ logo:
 	mov [gs:edx], WORD ax
 	add edx, 2
 	jmp .write
-.new_line:
+
+	.new_line:
 	mov edx, FB_W * 2
 	imul edx, ebx
 	add edx, LOGO_POS
 	inc ebx
 	jmp .write
-.end:
 
-end:
-	;; Loop forever
+	.end:
+
+pmode:
+	;; Prepare for protected mode
+	cli
+	lgdt [gdt.gdtr]
+	mov eax, cr0
+	or al, 1											; set PE
+	mov cr0, eax
+
+	jmp dword 0x8:(0x20000 + pmode32)
+
+pmode32:
+	[bits 32]
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	
 	jmp $
+
+gdt:
+	.gdtr:
+	dw .gdt_end - .gdt - 1
+	dd 0x20000 + .gdt
+
+	.gdt:
+	;; Null segment
+	dq 0
+
+	;; Code segment
+	dw 0xffff											; Limit low
+	dw 0													; Base low
+	dw (1 << 15) | (1 << 12) | (10 << 8) ; Flags, type, base mid
+	dw 0xf | (1 << 7) | (1 << 6) | (1 << 4)	; Limit high, flags (32bit, 4K pages), base high
+
+	;; Data
+	dw 0xffff											; Limit low
+	dw 0													; Base low
+	dw (1 << 15) | (1 << 12) | (2 << 8) ; Flags, base mid
+	dw 0xf | (1 << 7) | (1 << 6) | (1 << 4)	; Limit high, Type (32bit, 4K pages), base high
+	.gdt_end:
 
 data:
 .str:
