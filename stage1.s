@@ -1,11 +1,13 @@
+%include "segments.inc"
+%include "memory.inc"
 %include "gpu.inc"
-%include "bochs.inc"
+%include "debug.inc"
 
 [BITS 16]
 [CPU 586]
 [org 0x7c00]
 
-jmp WORD 0:start								; Unify the segment:offset between BIOSes
+jmp WORD SEG_REAL_CS:start			; Unify the segment:offset between BIOSes
 
 start:
 	;; Disable interupts
@@ -20,16 +22,20 @@ start:
 	out 0x92, al
 
 	;; Prepare segments
-	mov ax, 0x2000
+	mov ax, SEG_REAL_DS
 	mov ds, ax
+
+	mov ax, SEG_REAL_ES
 	mov es, ax
 
-	mov ax, 0x1ff0
+	mov ax, SEG_REAL_SS
 	mov ss, ax
 	xor sp, sp
 
-	mov ax, (FB / 0x10)
+	mov ax, SEG_REAL_FS
 	mov fs, ax
+
+	mov ax, SEG_REAL_GS
 	mov gs, ax
 
 	;; Set cursor position to (0,0)
@@ -81,6 +87,7 @@ loader:
 	int 0x13
 
 	cmp ah, 0
+	DEBUG
 	jz bootstrap
 
 reboot:
@@ -93,7 +100,8 @@ reboot:
 	jmp WORD 0xFFFF:0x0000
 
 bootstrap:
-	jmp WORD 0x2000:0x0000				; Jump to stage2
+	DEBUG
+	jmp WORD MEM_REAL_STAGE2:0						;Jump to stage2
 
 fill:
 	;; Check if bootstrap size is less than required 446 bytes

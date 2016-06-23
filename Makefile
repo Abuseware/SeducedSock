@@ -1,5 +1,7 @@
+DEBUG ?= 0
+
 AS = nasm
-ASFLAGS = -f bin
+ASFLAGS = -f bin -DEBUG=$(DEBUG)
 
 .PHONY: all
 
