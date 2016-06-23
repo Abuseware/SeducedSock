@@ -1,5 +1,8 @@
+%include "segments.inc"
+%include "memory.inc"
 %include "gpu.inc"
-%include "bochs.inc"
+%include "gdt.inc"
+%include "debug.inc"
 
 ;; Char color code
 %define LOGO_COLOR 0x02
@@ -20,18 +23,25 @@ start:
 	or al, 1											; set PE
 	mov cr0, eax
 
-	jmp dword 0x8:(0x20000 + pmode)
+	DEBUG
+	jmp dword SEG_PROTECT_CS:(MEM_PROTECT_STAGE2 + pmode)
 
 [BITS 32]
 pmode:
-	mov ax, 0x10
-
+	mov ax, SEG_PROTECT_DS
 	mov ds, ax
+
+	mov ax, SEG_PROTECT_ES
 	mov es, ax
 
+	mov ax, SEG_PROTECT_SS
 	mov ss, ax
+	xor esp, esp
 
+	mov ax, SEG_PROTECT_FS
 	mov fs, ax
+
+	mov ax, SEG_PROTECT_GS
 	mov gs, ax
 
 logo:
@@ -39,7 +49,7 @@ logo:
 	;; Prepare registers for loading string
 	mov edx, FB + LOGO_POS
 	mov ebx, 1
-	mov esi, 0x20000 + data.str
+	mov esi, MEM_PROTECT_STAGE2 + data.str
 
 	.write:
 	;; Read single char from string
@@ -65,29 +75,40 @@ logo:
 
 	.end:
 
+end:
+	DEBUG
 	jmp $
 
 gdt:
 	.gdtr:
-	dw .gdt_end - .gdt - 1
-	dd 0x20000 + .gdt
+	istruc gdtr
+	at gdtr.size, dw .size
+	at gdtr.base, dd MEM_PROTECT_STAGE2 + .gdt
+	iend
 
 	.gdt:
+	.gdt_null:
 	;; Null segment
 	dq 0
-
+	.gdt_code:
 	;; Code segment
-	dw 0xffff											; Limit low
-	dw 0													; Base low
-	dw (1 << 15) | (1 << 12) | (10 << 8) ; Flags, type, base mid
-	dw 0xf | (1 << 7) | (1 << 6) | (1 << 4)	; Limit high, flags (32bit, 4K pages), base high
+	istruc gdt_entry
+	at gdt_entry.limit, dw 0xffff
+	at gdt_entry.base, dw 0
+	at gdt_entry.type, dw GDT_TYPE_P | GDT_TYPE_S | GDT_TYPE_CODE_RX
+	at gdt_entry.flags, dw 0xf | GDT_FLAG_G | GDT_FLAG_DB | GDT_FLAG_AVL
+	iend
 
+	.gdt_data:
 	;; Data
-	dw 0xffff											; Limit low
-	dw 0													; Base low
-	dw (1 << 15) | (1 << 12) | (2 << 8) ; Flags, base mid
-	dw 0xf | (1 << 7) | (1 << 6) | (1 << 4)	; Limit high, Type (32bit, 4K pages), base high
-	.gdt_end:
+	istruc gdt_entry
+	at gdt_entry.limit, dw 0xffff
+	at gdt_entry.base, dw 0
+	at gdt_entry.type, dw GDT_TYPE_P | GDT_TYPE_S | GDT_TYPE_DATA_RW
+	at gdt_entry.flags, dw 0xf | GDT_FLAG_G | GDT_FLAG_DB | GDT_FLAG_AVL
+	iend
+
+	.size equ $ - .gdt
 
 data:
 .str:
@@ -99,7 +120,7 @@ data:
 	db '                         _/',0xA
 	db '                        _/',0x0
 
-fill:	
+fill:
 	;; Fill to 1.5kB
 	%if ($ - $$) > 1535
 		%fatal "Code too fat!"
