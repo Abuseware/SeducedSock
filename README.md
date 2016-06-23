@@ -2,8 +2,6 @@
 
 Simple x86 Assembly example explaining how to make bootable "Hello World".
 
-![Screenshot](screenshot.png)
-
 ### Stage 1
 This stage resides in MBR and contains simple bootstrap to next stage
 
@@ -20,10 +18,10 @@ Final image works either as a floppy and a hard drive.
 ### Debugging
 Run make with DEBUG set to:
 
-	- 0 - No debugging
-	- 1 - Emit BOCHS specific debug instruction (xchg bx, bx)
-	- 2 - Emit standard debugger breakpoint (int3)
-	- 3 - Emit both
+- 0 - No debugging
+- 1 - Emit BOCHS specific debug instruction (xchg bx, bx)
+- 2 - Emit standard debugger breakpoint (int3)
+- 3 - Emit both
 
 Ex: make DEBUG=1 clean all
 
@@ -35,7 +33,17 @@ You could also run it in QEMU, or any another virtual (or real) machine…
 
     bochs -q
 
+![BOCHS](screenshot-bochs.png)
+
 
 #### QEMU
 
-    qemu-system-i386 -cpu pentium -boot a -fda boot.img
+    qemu-system-i386 -cpu pentium -boot a -fda boot
+
+![QEMU](screenshot-qemu.png)
+
+#### VirtualBox
+
+Add *boot* as RAW floppy or hard drive.
+
+![VirtualBox](screenshot-vbox.png)
