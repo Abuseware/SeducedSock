@@ -13,6 +13,7 @@ all: build floppy
 build: stage1 stage2
 
 floppy: boot
+	mv boot boot.img
 
 clean:
 	rm -f stage1 stage2 boot

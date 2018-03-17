@@ -1,4 +1,5 @@
 syntax: glob
 boot
+boot.img
 stage?
 *~

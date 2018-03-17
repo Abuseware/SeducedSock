@@ -1,0 +1,7 @@
+%define PT_P (1 << 0)
+%define PT_RW (1 << 1)
+%define PT_US (1 << 2)
+%define PT_PWT (1 << 3)
+%define PT_PCD (1 << 4)
+%define PT_PS (1 << 7)
+%define PT_XD (1 << 63)
