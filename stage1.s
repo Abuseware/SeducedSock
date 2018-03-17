@@ -3,8 +3,8 @@
 %include "gpu.inc"
 %include "debug.inc"
 
+[CPU x64]
 [BITS 16]
-[CPU 586]
 [org 0x7c00]
 
 jmp WORD SEG_REAL_CS:start			; Unify the segment:offset between BIOSes
@@ -20,6 +20,11 @@ start:
 	in al, 0x92										; Fast A20
 	or al, 2
 	out 0x92, al
+
+	;; Notify BIOS to prepare for 32e mode
+	mov ax, 0xEC00
+	mov bx, 0x3
+	int 0x15
 
 	;; Prepare segments
 	mov ax, SEG_REAL_DS
@@ -78,7 +83,7 @@ clear:
 loader:
 	;; Read stage2 to ES:BX
 	mov ah, 2											; INT 0x13/0x2 DISK - READ SECTOR(S) INTO MEMORY
-	mov al, 2											; Number of sectors
+	mov al, 4											; Number of sectors
 	mov ch, 0											; Cylinder
 	mov cl, 2											; Sector
 	mov dh, 0											; Head
