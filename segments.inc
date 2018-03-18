@@ -18,4 +18,12 @@
 
 %define SEG_PROTECT_SS 0x10
 
+;; Long mode
+%define SEG_LONG_CS 0x8
+%define SEG_LONG_DS 0x10
+%define SEG_LONG_ES 0x10
 
+%define SEG_LONG_FS 0x10
+%define SEG_LONG_GS 0x10
+
+%define SEG_LONG_SS 0x10

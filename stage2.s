@@ -15,7 +15,7 @@
 
 [CPU x64]
 [BITS 16]
-[segment text]
+[segment text vstart=MEM_PROTECT_STAGE2]
 start:
 	;; Prepare for protected mode
 	cli
@@ -25,10 +25,10 @@ start:
 	mov cr0, eax
 
 	DEBUG
-	jmp dword SEG_PROTECT_CS:(MEM_PROTECT_STAGE2 + pmode)
+	jmp dword SEG_PROTECT_CS:mode32
 
 [BITS 32]
-pmode:
+mode32:
 	mov ax, SEG_PROTECT_DS
 	mov ds, ax
 
@@ -47,22 +47,22 @@ pmode:
 
 	;;Prepare paging
 	xor eax, eax
-	mov edi, MEM_PROTECT_PAGETABLE
+	mov edi, MEM_PAGETABLE
 	mov ecx, 0x1000
 	cld
 	rep stosd
 
-	mov eax, MEM_PROTECT_PAGETABLE
-	mov dword [eax], PT_P | PT_RW | (MEM_PROTECT_PAGETABLE + 0x1000)
+	mov eax, MEM_PAGETABLE
+	mov dword [eax], PT_P | PT_RW | (MEM_PAGETABLE + 0x1000)
 	add eax, 0x1000
 	mov dword [eax], PT_P | PT_RW | PT_PS
 
 	;; Prepare for long mode
-	mov eax, (MEM_PROTECT_PAGETABLE)
+	mov eax, MEM_PAGETABLE
 	mov cr3, eax
 
 	mov eax, cr4
-  	or eax, 1 << 5 ; set PAE
+  	or eax, (1 << 5) ; set PAE
   	mov cr4, eax
 
 	mov ecx, 0xC0000080 ; EFER
@@ -74,21 +74,35 @@ pmode:
 	or eax, (1 << 31) ; set paging (PG)
 	mov cr0, eax
 
-	lgdt [MEM_PROTECT_STAGE2 + gdt64.gdtr]
+	lgdt [gdt64.gdtr]
 	DEBUG
-	jmp dword SEG_PROTECT_CS:(MEM_PROTECT_STAGE2 + lmode)
+
+	jmp dword SEG_LONG_CS:mode64
 
 [BITS 64]
-times (512 - ($ - $$) % 512) db 0
-lmode:
+mode64:
+	mov ax, SEG_LONG_DS
+	mov ds, ax
 
+	mov ax, SEG_LONG_ES
+	mov es, ax
+
+	mov ax, SEG_LONG_SS
+	mov ss, ax
+	xor esp, esp
+
+	mov ax, SEG_LONG_FS
+	mov fs, ax
+
+	mov ax, SEG_LONG_GS
+	mov gs, ax
 
 logo:
 	;; Draw logo
 	;; Prepare registers for loading string
 	mov edx, FB + LOGO_POS
 	mov ebx, 1
-	mov esi, MEM_PROTECT_STAGE2 + data.str
+	mov esi, data.str
 
 	.write:
 	;; Read single char from string
@@ -118,12 +132,16 @@ end:
 	DEBUG
 	jmp $
 
-[segment data align=16]
+%if ($ - $$) > 0x199
+	%fatal "Stage 2 too big!"
+%endif
+
+[segment data start=0x200 vstart=0x20200]
 gdt:
 	.gdtr:
 	istruc gdtr
 	at gdtr.size, dw .size
-	at gdtr.base, dd MEM_PROTECT_STAGE2 + .gdt
+	at gdtr.base, dd .gdt
 	iend
 
 	.gdt:
@@ -154,7 +172,7 @@ gdt64:
 	.gdtr:
 	istruc gdtr
 	at gdtr.size, dw .size
-	at gdtr.base, dd MEM_PROTECT_STAGE2 + .gdt
+	at gdtr.base, dd .gdt
 	iend
 
 	.gdt:
@@ -190,10 +208,3 @@ data:
 		db '_/_/_/      _/        _/_/_/',0xA
 		db '                         _/',0xA
 		db '                        _/',0x0
-
-fill:
-;; Fill to 1.5kB
-	%if ($ - $$) > 1535
-		%fatal "Code too fat!"
-	%endif
-	times 1536 - ($ - $$) db 0

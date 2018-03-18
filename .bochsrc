@@ -1,6 +1,8 @@
 # You may now use double quotes around pathnames, in case
 # your pathname includes spaces.
 
+plugin_ctrl: speaker=0
+
 #=======================================================================
 # CONFIG_INTERFACE
 #
@@ -25,14 +27,14 @@ config_interface: textconfig
 #=======================================================================
 # DISPLAY_LIBRARY
 #
-# The display library is the code that displays the Bochs VGA screen.  Bochs 
-# has a selection of about 10 different display library implementations for 
-# different platforms.  If you run configure with multiple --with-* options, 
+# The display library is the code that displays the Bochs VGA screen.  Bochs
+# has a selection of about 10 different display library implementations for
+# different platforms.  If you run configure with multiple --with-* options,
 # the display_library command lets you choose which one you want to run with.
 # If you do not write a display_library line, Bochs will choose a default for
 # you.
 #
-# The choices are: 
+# The choices are:
 #   x              use X windows interface, cross platform
 #   win32          use native win32 libraries
 #   carbon         use Carbon library (for MacOS X)
@@ -67,9 +69,9 @@ config_interface: textconfig
 #display_library: carbon
 #display_library: macintosh
 #display_library: nogui
-#display_library: rfb
+display_library: rfb
 #display_library: sdl, options="fullscreen" # startup in fullscreen mode
-display_library: sdl2 #, options="fullscreen" # startup in fullscreen mode
+#display_library: sdl2 #, options="fullscreen" # startup in fullscreen mode
 #display_library: term
 #display_library: vncsrv
 #display_library: win32
@@ -120,12 +122,12 @@ display_library: sdl2 #, options="fullscreen" # startup in fullscreen mode
 #
 #  QUANTUM:
 #    Maximum amount of instructions allowed to execute by processor before
-#    returning control to another cpu. This option exists only in Bochs 
+#    returning control to another cpu. This option exists only in Bochs
 #    binary compiled with SMP support.
 #
 #  RESET_ON_TRIPLE_FAULT:
 #    Reset the CPU when triple fault occur (highly recommended) rather than
-#    PANIC. Remember that if you trying to continue after triple fault the 
+#    PANIC. Remember that if you trying to continue after triple fault the
 #    simulation will be completely bogus !
 #
 #  CPUID_LIMIT_WINNT:
@@ -152,7 +154,7 @@ display_library: sdl2 #, options="fullscreen" # startup in fullscreen mode
 #    Measured IPS value will then be logged into your log file or shown
 #    in the status bar (if supported by the gui).
 #
-#    IPS is used to calibrate many time-dependent events within the bochs 
+#    IPS is used to calibrate many time-dependent events within the bochs
 #    simulation.  For example, changing IPS affects the frequency of VGA
 #    updates, the duration of time before a key starts to autorepeat, and
 #    the measurement of BogoMips and other benchmarks.
@@ -167,7 +169,7 @@ display_library: sdl2 #, options="fullscreen" # startup in fullscreen mode
 #  2.2.6 2.6Ghz Intel Core 2 Duo with WinXP/g++ 3.4       21 to 25 Mips
 #  2.2.6 2.1Ghz Athlon XP with Linux 2.6/g++ 3.4          12 to 15 Mips
 #=======================================================================
-cpu: model=p3_katmai, count=1, ips=2000000, reset_on_triple_fault=1
+cpu: model=ryzen, count=1, ips=2000000, reset_on_triple_fault=1
 
 #=======================================================================
 # MEMORY
@@ -202,7 +204,7 @@ memory: guest=64, host=64
 # now supported, but we still recommend to use the BIOS distributed with Bochs.
 # The start address is optional, since it can be calculated from image size.
 #=======================================================================
-romimage: file=$BXSHARE/BIOS-bochs-latest 
+romimage: file=$BXSHARE/BIOS-bochs-latest
 #romimage: file=$BXSHARE/bios.bin-1.7.5 # http://www.seabios.org/SeaBIOS
 #romimage: file=mybios.bin, address=0xfff80000 # 512k at memory top
 
@@ -259,7 +261,7 @@ vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
 #     characters to the keyboard controller. This leaves time for the
 #     guest os to deal with the flow of characters.  The ideal setting
 #     depends on how your operating system processes characters.  The
-#     default of 100000 usec (.1 seconds) was chosen because it works 
+#     default of 100000 usec (.1 seconds) was chosen because it works
 #     consistently in Windows.
 #     If your OS is losing characters during a paste, increase the paste
 #     delay until it stops losing characters.
@@ -411,7 +413,7 @@ clock: sync=realtime, rtc_sync=1, time0=utc
 #floppya: 1_44=a:, status=inserted
 #floppya: 1_44=a.img, status=inserted, write_protected=1
 #floppya: 1_44=/dev/rfd0a, status=inserted
-floppya: image=boot, status=inserted, write_protected=1
+floppya: image=boot.img, status=inserted, write_protected=1
 
 #=======================================================================
 # FLOPPYB:
@@ -425,10 +427,10 @@ floppya: image=boot, status=inserted, write_protected=1
 # ATA controller for hard disks and cdroms
 #
 # ata[0-3]: enabled=[0|1], ioaddr1=addr, ioaddr2=addr, irq=number
-# 
+#
 # These options enables up to 4 ata channels. For each channel
 # the two base io addresses and the irq must be specified.
-# 
+#
 # ata0 and ata1 are enabled by default with the values shown below
 #
 # Examples:
@@ -446,7 +448,7 @@ ata3: enabled=0, ioaddr1=0x168, ioaddr2=0x360, irq=9
 # ATA[0-3]-MASTER, ATA[0-3]-SLAVE
 #
 # This defines the type and characteristics of all attached ata devices:
-#   type=       type of attached device [disk|cdrom] 
+#   type=       type of attached device [disk|cdrom]
 #   mode=       only valid for disks [flat|concat|external|dll|sparse|vmware3]
 #                                    [vmware4|undoable|growing|volatile|vpc]
 #                                    [vbox|vvfat]
@@ -464,11 +466,11 @@ ata3: enabled=0, ioaddr1=0x168, ioaddr2=0x360, irq=9
 # device.  To create a hard disk image, try running bximage.  It will help you
 # choose the size and then suggest a line that works with it.
 #
-# In UNIX it may be possible to use a raw device as a Bochs hard disk, 
+# In UNIX it may be possible to use a raw device as a Bochs hard disk,
 # but WE DON'T RECOMMEND IT.  In Windows there is no easy way.
 #
 # In windows, the drive letter + colon notation should be used for cdroms.
-# Depending on versions of windows and drivers, you may only be able to 
+# Depending on versions of windows and drivers, you may only be able to
 # access the "first" cdrom in the system.  On MacOSX, use path="drive"
 # to access the physical drive.
 #
@@ -500,7 +502,7 @@ ata3: enabled=0, ioaddr1=0x168, ioaddr2=0x360, irq=9
 #ata0-slave: type=cdrom, path=D:, status=inserted
 #ata0-slave: type=cdrom, path=/dev/cdrom, status=inserted
 #ata0-slave: type=cdrom, path="drive", status=inserted
-#ata0-slave: type=cdrom, path=/dev/rcd0d, status=inserted 
+#ata0-slave: type=cdrom, path=/dev/rcd0d, status=inserted
 
 #=======================================================================
 # BOOT:
@@ -547,7 +549,7 @@ log: -
 #   %i : 8 hexadecimal digits of cpu current eip (ignored in SMP configuration)
 #   %e : 1 character event type ('i'nfo, 'd'ebug, 'p'anic, 'e'rror)
 #   %d : 5 characters string of the device, between brackets
-# 
+#
 # Default : %t%e%d
 # Examples:
 #   logprefix: %t-%e-@%i-%d
@@ -559,7 +561,7 @@ log: -
 # LOG CONTROLS
 #
 # Bochs has four severity levels for event logging.
-#   panic: cannot proceed.  If you choose to continue after a panic, 
+#   panic: cannot proceed.  If you choose to continue after a panic,
 #          don't be surprised if you get strange behavior or crashes.
 #   error: something went wrong, but it is probably safe to continue the
 #          simulation.
@@ -577,7 +579,7 @@ log: -
 #
 # If you are experiencing many panics, it can be helpful to change
 # the panic action to report instead of fatal.  However, be aware
-# that anything executed after a panic is uncharted territory and can 
+# that anything executed after a panic is uncharted territory and can
 # cause bochs to become unstable.  The panic is a "graceful exit," so
 # if you disable it you may get a spectacular disaster instead.
 #=======================================================================
