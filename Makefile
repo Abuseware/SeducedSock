@@ -17,10 +17,12 @@ PY = python
 
 all: build floppy
 
-build: logo.s stage1 stage2
+build: stage1 stage2
+
+stage2: logo.s
 
 floppy: boot
 	mv boot boot.img
 
 clean:
-	rm -f stage1 stage2 boot
+	rm -f logo.s stage1 stage2 boot
