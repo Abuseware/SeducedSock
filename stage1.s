@@ -21,11 +21,6 @@ start:
 	or al, 2
 	out 0x92, al
 
-	;; Notify BIOS to prepare for 32e mode
-	mov ax, 0xEC00
-	mov bx, 0x3
-	int 0x15
-
 	;; Prepare segments
 	mov ax, SEG_REAL_DS
 	mov ds, ax
