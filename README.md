@@ -11,7 +11,7 @@ partition)
 
 ### How to build
 Simply type "make" inside project directory. You must have GNU or BSD Make,
-and NASM.
+NASM and Python 3.
 
 Final image works either as a floppy and a hard drive.
 
@@ -29,6 +29,12 @@ Ex: make DEBUG=1 clean all
 Project contains Bochs config designed to work in any supported UNIX-like OS.
 You could also run it in QEMU, or any another virtual (or real) machine…
 
+#### Real machine:
+Write *boot.img* to any USB stick, floppy, or other bootable medium.
+Be sure to use BIOS based PC, or enable CSM mode in your UEFI setup.
+You'll need x86_64 class PC, just because this code will jump to 64b mode of CPU.
+Why? Because. That's why :)
+
 #### Bochs:
 
     bochs -q
@@ -38,12 +44,12 @@ You could also run it in QEMU, or any another virtual (or real) machine…
 
 #### QEMU
 
-    qemu-system-i386 -cpu pentium -boot a -fda boot
+    qemu-system-x86_64 -boot a -fda boot.img
 
 ![QEMU](screenshot-qemu.png)
 
 #### VirtualBox
 
-Add *boot* as RAW floppy or hard drive.
+Add *boot.img* as RAW floppy or hard drive.
 
 ![VirtualBox](screenshot-vbox.png)
