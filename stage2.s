@@ -86,8 +86,17 @@ logo:
 	mov rsi, data.str
 
 	.write:
-	;; Read single char from string
-	lodsb
+	;; Read RLE pair from "string"
+	lodsw
+	;; Prepare counter
+	xor rcx, rcx
+	mov cl, ah
+	xchg bx,bx
+	;; Decode RLE
+	.rle:
+	cmp cl, 0x0
+	jz .write
+	dec cl
 	;; Jump on special chars
 	cmp al, 0xA
 	jz .new_line ; Make new line on 0xA (\n)
@@ -98,14 +107,14 @@ logo:
 	mov ah, LOGO_COLOR
 	mov [r8], WORD ax
 	add r8, 2
-	jmp .write
+	jmp .rle
 
 	.new_line:
 	mov r8, FB_W * 2
 	imul r8, r9
 	add r8, FB + LOGO_POS
-	inc r9
-	jmp .write
+	add r9, 1
+	jmp .rle
 
 	.end:
 
@@ -122,10 +131,4 @@ end:
 
 data:
 	.str:
-		db '    _/_/_/        _/_/',0xA
-		db '   _/    _/    _/        _/_/_/',0xA
-		db '  _/_/_/    _/_/_/_/  _/    _/',0xA
-		db ' _/    _/    _/      _/    _/',0xA
-		db '_/_/_/      _/        _/_/_/',0xA
-		db '                         _/',0xA
-		db '                        _/',0x0
+		%include "logo.s"
