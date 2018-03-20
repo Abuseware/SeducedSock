@@ -9,9 +9,6 @@
 %assign LOGO_COLOR 0x02
 
 ;; Position of logo
-%assign LOGO_X ((FB_W / 2) - 16)
-%assign LOGO_Y ((FB_H / 2) - 4)
-%assign LOGO_POS (LOGO_X + (FB_W * LOGO_Y)) * 2
 
 [CPU x64]
 [BITS 16]
@@ -89,9 +86,20 @@ clear:
 logo:
 	;; Draw logo
 	;; Prepare registers for loading string
-	mov r8, FB + LOGO_POS
+	mov r8, FB
 	mov r9, 1
 	mov rsi, data.str
+
+	;; Read X,Y from data
+	xor rax, rax
+	xor rbx, rbx
+	lodsw ;; Load Y,X to eax
+	mov bl, al ;; Move Y to bl
+	imul rbx, FB_W ;; Multiply FB_W by Y to get starting line
+	shr rax, 8 ;; Move rax one byte to right
+	add rbx, rax ;; Add X to starting point
+	imul ebx, 2 ;; Multiply by two (2 bytes per char in framebuffer)
+	add r8, rbx ;; Add calculated position to framebuffer address
 
 	.write:
 	;; Read RLE pair from "string"
@@ -119,8 +127,9 @@ logo:
 	.new_line:
 	mov r8, FB_W * 2
 	imul r8, r9
-	add r8, FB + LOGO_POS
-	add r9, 1
+	add r8, FB
+	add r8, rbx
+	inc r9
 	jmp .rle
 
 	.end:
