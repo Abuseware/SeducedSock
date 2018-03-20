@@ -19,6 +19,7 @@
 start:
 	;; Prepare for protected mode
 	cli
+	load_segments REAL
 
 	;; Load GDT for protected mode
 	lgdt [gdt32.gdtr]
@@ -78,6 +79,13 @@ mode32:
 mode64:
 	load_segments LONG
 
+clear:
+	;; Clear whole screen
+	mov rdi, FB
+	mov rcx, FB_SIZ
+	mov rax, 0x0
+	rep stosw
+
 logo:
 	;; Draw logo
 	;; Prepare registers for loading string
@@ -91,7 +99,6 @@ logo:
 	;; Prepare counter
 	xor rcx, rcx
 	mov cl, ah
-	xchg bx,bx
 	;; Decode RLE
 	.rle:
 	cmp cl, 0x0

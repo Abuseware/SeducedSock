@@ -13,7 +13,7 @@ partition)
 Simply type "make" inside project directory. You must have GNU or BSD Make,
 NASM and Python 3.
 
-Final image works either as a floppy and a hard drive.
+Final image works as a hard drive.
 
 ### Debugging
 Run make with DEBUG set to:
@@ -22,6 +22,7 @@ Run make with DEBUG set to:
 - 1 - Emit BOCHS specific debug instruction (xchg bx, bx)
 - 2 - Emit standard debugger breakpoint (int3)
 - 3 - Emit both
+- 4 - Loop forever (jmp $)
 
 Ex: make DEBUG=1 clean all
 
@@ -30,7 +31,7 @@ Project contains Bochs config designed to work in any supported UNIX-like OS.
 You could also run it in QEMU, or any another virtual (or real) machine…
 
 #### Real machine:
-Write *boot.img* to any USB stick, floppy, or other bootable medium.
+Write *boot.img* to any USB stick or other bootable medium.
 Be sure to use BIOS based PC, or enable CSM mode in your UEFI setup.
 You'll need x86_64 class PC, just because this code will jump to 64b mode of CPU.
 Why? Because. That's why :)

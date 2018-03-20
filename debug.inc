@@ -7,6 +7,8 @@
 		xchg bx, bx
 		int3
 	%endmacro
+%elif EBUG == 4
+	%define DEBUG jmp $
 %else
 	%define DEBUG
 %endif

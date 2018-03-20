@@ -1,13 +1,14 @@
 %include "segments.inc"
 %include "memory.inc"
 %include "gpu.inc"
+%include "mbr.inc"
 %include "debug.inc"
 
 [CPU x64]
 [BITS 16]
 [org 0x7c00]
 
-jmp WORD SEG_REAL_CS:start			; Unify the segment:offset between BIOSes
+jmp WORD SEG_STAGE1_CS:start			; Unify the segment:offset between BIOSes
 
 start:
 	;; Disable interupts
@@ -22,21 +23,7 @@ start:
 	out 0x92, al
 
 	;; Prepare segments
-	mov ax, SEG_REAL_DS
-	mov ds, ax
-
-	mov ax, SEG_REAL_ES
-	mov es, ax
-
-	mov ax, SEG_REAL_SS
-	mov ss, ax
-	xor sp, sp
-
-	mov ax, SEG_REAL_FS
-	mov fs, ax
-
-	mov ax, SEG_REAL_GS
-	mov gs, ax
+	load_segments STAGE1
 
 	;; Set cursor position to (0,0)
 	push dx 											; Store DX - contains disk id
@@ -56,24 +43,6 @@ start:
 	mov al, 0
 	out dx, al
 	pop dx												; Restore DX for later use
-
-clear:
-	;; Clear whole screen
-	;; Prepare ES
-	push es
-	push di
-	mov ax, FB / 0x10
-	mov es, ax
-	xor di,di
-
-	;; Clear
-	mov cx, FB_SIZ
-	mov ax, 0x20
-	rep stosw
-
-	;; Restore ES
-	pop di
-	pop es
 
 loader:
 	;; Read stage2 to ES:BX
@@ -103,12 +72,34 @@ bootstrap:
 	DEBUG
 	jmp WORD MEM_REAL_STAGE2:0						;Jump to stage2
 
-fill:
-	;; Check if bootstrap size is less than required 446 bytes
-	%if ($ - $$) > 446
-		%fatal "Bootstrap too fat!"
-	%endif
+;; Check if bootstrap size is less than required 446 bytes
+%if ($ - $$) > 446
+	%fatal "Bootstrap too fat!"
+%endif
 
+times 0x1be - ($ - $$) db 0 ;; Fill gap before partition table
+
+partitions:
+
+	.fist:
+		istruc mbr_partition
+			at mbr_partition.status, db (1 << 7) ; Active
+
+			at mbr_partition.start_head, db 1
+			at mbr_partition.start_sector, db 1
+			at mbr_partition.start_cylinder, db 0
+
+			at mbr_partition.type, db 0x0b ; FAT32 CHS
+
+			at mbr_partition.end_head, db 0
+			at mbr_partition.end_sector, db 1
+			at mbr_partition.end_cylinder, db 64
+
+			at mbr_partition.lba_start, dd 1
+			at mbr_partition.lba_size, dd 2048
+
+
+fill:
 	;; Fill unused space and partition table
 	times 510 - ($ - $$) db 0
 

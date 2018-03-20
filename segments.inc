@@ -1,20 +1,37 @@
 %macro load_segments 1
-	mov ax, SEG_%1_DS
-	mov ds, ax
+	%ifdef SEG_%1_DS
+		mov ax, SEG_%1_DS
+		mov ds, ax
+	%endif
 
-	mov ax, SEG_%1_ES
-	mov es, ax
+	%ifdef SEG_%1_ES
+		mov ax, SEG_%1_ES
+		mov es, ax
+	%endif
 
-	mov ax, SEG_%1_SS
-	mov ss, ax
-	xor esp, esp
+	%ifdef SEG_%1_SS
+		mov ax, SEG_%1_SS
+		mov ss, ax
+		xor esp, esp
+	%endif
 
-	mov ax, SEG_%1_FS
-	mov fs, ax
+	%ifdef SEG_%1_FS
+		mov ax, SEG_%1_FS
+		mov fs, ax
+	%endif
 
-	mov ax, SEG_%1_GS
-	mov gs, ax
+	%ifdef SEG_%1_GS
+		mov ax, SEG_%1_GS
+		mov gs, ax
+	%endif
 %endmacro
+
+;; Stage1 segments
+%assign SEG_STAGE1_CS 0
+%assign SEG_STAGE1_DS 0
+%assign SEG_STAGE1_ES 0x2000
+
+%assign SEG_STAGE1_SS 0x1ff0
 
 ;; Real mode
 %assign SEG_REAL_CS 0
