@@ -15,14 +15,14 @@ PY = python
 .txt.s:
 	$(PY) rle.py $<
 
-all: build floppy
+all: build hdd
 
 build: stage1 stage2
 
 stage2: logo.s
 
-floppy: boot
+hdd: boot
 	mv boot boot.img
 
 clean:
-	rm -f logo.s stage1 stage2 boot
+	rm -f logo.s stage1 stage2 boot boot.img
