@@ -89,7 +89,7 @@ partitions:
 			at mbr_partition.start_sector, db 1
 			at mbr_partition.start_cylinder, db 0
 
-			at mbr_partition.type, db 0x0b ; FAT32 CHS
+			at mbr_partition.type, db 0x4 ; FAT16 (Small)
 
 			at mbr_partition.end_head, db 0
 			at mbr_partition.end_sector, db 1

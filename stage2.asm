@@ -6,7 +6,7 @@
 %include "debug.inc"
 
 ;; Char color code
-%assign LOGO_COLOR 0x02
+%assign LOGO_COLOR 0xA
 
 ;; Position of logo
 
@@ -40,11 +40,11 @@ mode32:
 	rep stosd
 
 	mov eax, MEM_PAGETABLE
-	mov dword [eax], PT_P | PT_RW | (MEM_PAGETABLE + 0x1000)
+	mov DWORD [eax], PT_P | PT_RW | (MEM_PAGETABLE + 0x1000)
 	add eax, 0x1000
-	mov dword [eax], PT_P | PT_RW | (MEM_PAGETABLE + 0x2000)
+	mov DWORD [eax], PT_P | PT_RW | (MEM_PAGETABLE + 0x2000)
 	add eax, 0x1000
-	mov dword [eax], PT_P | PT_RW | PT_PS
+	mov DWORD [eax], PT_P | PT_RW | PT_PS
 
 	;; Prepare for long mode
 	mov eax, MEM_PAGETABLE
@@ -70,7 +70,7 @@ mode32:
 	lgdt [gdt64.gdtr]
 	DEBUG
 
-	jmp dword SEG_LONG_CS:mode64
+	jmp DWORD SEG_LONG_CS:mode64
 
 [BITS 64]
 mode64:
@@ -135,7 +135,6 @@ logo:
 	.end:
 
 end:
-	DEBUG
 	jmp $
 
 %if ($ - $$) > 0x199
