@@ -49,7 +49,7 @@ if __name__ == "__main__":
         x = int((TERMINAL_WIDTH / 2) - (width / 2))
         y = int((TERMINAL_HEIGHT / 2) - (height / 2))
 
-        with open((sys.argv[1].split('.')[0] + '.s'), 'w') as wf:
+        with open((sys.argv[1].split('.')[0] + '.asm'), 'w') as wf:
             wf.write("db 0x%X,0x%X\n" % (y, x))
 
             for line in rf:

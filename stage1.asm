@@ -8,17 +8,17 @@
 [BITS 16]
 [org 0x7c00]
 
-jmp WORD SEG_STAGE1_CS:start			; Unify the segment:offset between BIOSes
+jmp WORD SEG_STAGE1_CS:start ; Unify the segment:offset between BIOSes
 
 start:
 	;; Disable interupts
 	cli
 
 	;; Enable A20
-	mov ax, 0x2401 								; BIOS version
+	mov ax, 0x2401 ; BIOS version
 	int 0x15
 
-	in al, 0x92										; Fast A20
+	in al, 0x92 ; Fast A20
 	or al, 2
 	out 0x92, al
 
@@ -26,31 +26,31 @@ start:
 	load_segments STAGE1
 
 	;; Set cursor position to (0,0)
-	push dx 											; Store DX - contains disk id
+	push dx ; Store DX - contains disk id
 	mov dx, 0x3D4
 	mov al, 14
 	out dx, al
 
-	inc dx 												; 0x3D5
+	inc dx ; 0x3D5
 	mov al, 0
 	out dx, al
 
-	dec dx												; 0x3D4
+	dec dx ; 0x3D4
 	mov al, 15
 	out dx, al
 
-	inc dx												; 0x3D5
+	inc dx ; 0x3D5
 	mov al, 0
 	out dx, al
-	pop dx												; Restore DX for later use
+	pop dx ; Restore DX for later use
 
 loader:
 	;; Read stage2 to ES:BX
-	mov ah, 2											; INT 0x13/0x2 DISK - READ SECTOR(S) INTO MEMORY
-	mov al, 4											; Number of sectors
-	mov ch, 0											; Cylinder
-	mov cl, 2											; Sector
-	mov dh, 0											; Head
+	mov ah, 2 ; INT 0x13/0x2 DISK - READ SECTOR(S) INTO MEMORY
+	mov al, 4 ; Number of sectors
+	mov ch, 0 ; Cylinder
+	mov cl, 2 ; Sector
+	mov dh, 0 ; Head
 	xor bx, bx
 
 	int 0x13
@@ -70,18 +70,18 @@ reboot:
 
 bootstrap:
 	DEBUG
-	jmp WORD MEM_REAL_STAGE2:0						;Jump to stage2
+	jmp WORD MEM_REAL_STAGE2:0 ; Jump to stage2
 
 ;; Check if bootstrap size is less than required 446 bytes
 %if ($ - $$) > 446
 	%fatal "Bootstrap too fat!"
 %endif
 
-times 0x1be - ($ - $$) db 0 ;; Fill gap before partition table
+times 0x1be - ($ - $$) db 0 ; Fill gap before partition table
 
 partitions:
 
-	.fist:
+	.first:
 		istruc mbr_partition
 			at mbr_partition.status, db (1 << 7) ; Active
 
@@ -97,6 +97,7 @@ partitions:
 
 			at mbr_partition.lba_start, dd 1
 			at mbr_partition.lba_size, dd 2048
+		iend
 
 
 fill:

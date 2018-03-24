@@ -1,6 +1,7 @@
 syntax: glob
 boot
-boot.img
 stage?
-logo.s
+boot.img
+logo.asm
 *~
+.DS_Store

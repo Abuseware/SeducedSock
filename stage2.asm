@@ -143,8 +143,8 @@ end:
 %endif
 
 [segment data start=0x200 vstart=0x20200]
-%include "gdt.s"
+%include "gdt.asm"
 
 data:
 	.str:
-		%include "logo.s"
+		%include "logo.asm"
