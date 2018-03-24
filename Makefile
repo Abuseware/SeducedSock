@@ -1,28 +1,28 @@
-DEBUG ?= 0
+ DEBUG ?= 0
 
 AS = nasm
-ASFLAGS = -f bin -DEBUG=$(DEBUG)
+ASFLAGS = -Wall -f bin -DEBUG=$(DEBUG)
 
 PY = python
 
 .PHONY: all
 
-.SUFFIXES: .txt .s
+.SUFFIXES: .txt .asm
 
-.s:
+.asm:
 	$(AS) $(ASFLAGS) $<
 
-.txt.s:
+.txt.asm:
 	$(PY) rle.py $<
 
 all: build hdd
 
 build: stage1 stage2
 
-stage2: logo.s
+stage2: logo.asm
 
 hdd: boot
 	mv boot boot.img
 
 clean:
-	rm -f logo.s stage1 stage2 boot boot.img
+	rm -f logo.asm stage1 stage2 boot boot.img
