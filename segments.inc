@@ -12,7 +12,6 @@
 	%ifdef SEG_%1_SS
 		mov ax, SEG_%1_SS
 		mov ss, ax
-		xor esp, esp
 	%endif
 
 	%ifdef SEG_%1_FS
