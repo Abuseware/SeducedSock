@@ -24,6 +24,7 @@ start:
 
 	;; Prepare segments
 	load_segments STAGE1
+	xor sp, sp
 
 	;; Set cursor position to (0,0)
 	push dx ; Store DX - contains disk id
@@ -42,6 +43,12 @@ start:
 	inc dx ; 0x3D5
 	mov al, 0
 	out dx, al
+
+	;; Disable cursor
+	mov ah, 1
+	mov ch, 0x3f
+	int 0x10
+
 	pop dx ; Restore DX for later use
 
 loader:
@@ -56,7 +63,6 @@ loader:
 	int 0x13
 
 	cmp ah, 0
-	DEBUG
 	jz bootstrap
 
 reboot:
@@ -69,7 +75,6 @@ reboot:
 	jmp WORD 0xFFFF:0x0000
 
 bootstrap:
-	DEBUG
 	jmp WORD MEM_REAL_STAGE2:0 ; Jump to stage2
 
 ;; Check if bootstrap size is less than required 446 bytes
