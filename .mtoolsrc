@@ -1,0 +1,2 @@
+drive c:
+  file="partition.img" fat_bits=16 cylinders=20 heads=16 sectors=63 mformat_only

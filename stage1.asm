@@ -1,7 +1,5 @@
 %include "segments.inc"
 %include "memory.inc"
-%include "gpu.inc"
-%include "mbr.inc"
 %include "debug.inc"
 
 [CPU x64]
@@ -49,6 +47,11 @@ start:
 	mov ch, 0x3f
 	int 0x10
 
+	;; Clear screen
+	mov ah, 0
+	mov al, 0x3 ; 80x25 8bit
+	int 0x10
+
 	pop dx ; Restore DX for later use
 
 loader:
@@ -81,33 +84,3 @@ bootstrap:
 %if ($ - $$) > 446
 	%fatal "Bootstrap too fat!"
 %endif
-
-times 0x1be - ($ - $$) db 0 ; Fill gap before partition table
-
-partitions:
-
-	.first:
-		istruc mbr_partition
-			at mbr_partition.status, db (1 << 7) ; Active
-
-			at mbr_partition.start_head, db 1
-			at mbr_partition.start_sector, db 1
-			at mbr_partition.start_cylinder, db 0
-
-			at mbr_partition.type, db 0x4 ; FAT16 (Small)
-
-			at mbr_partition.end_head, db 0
-			at mbr_partition.end_sector, db 1
-			at mbr_partition.end_cylinder, db 64
-
-			at mbr_partition.lba_start, dd 1
-			at mbr_partition.lba_size, dd 2048
-		iend
-
-
-fill:
-	;; Fill unused space and partition table
-	times 510 - ($ - $$) db 0
-
-	;; Mark as bootable
-	dw 0xAA55

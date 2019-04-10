@@ -11,7 +11,7 @@ partition)
 
 ## How to build
 Simply type "make" inside a project directory. You must have GNU or BSD Make,
-NASM/YASM and Python 3.
+NASM/YASM, Python 3 and GNU mtools.
 
 Final image works as a hard drive.
 
